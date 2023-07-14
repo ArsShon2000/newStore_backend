@@ -60,13 +60,13 @@ export class ShoppingCartService {
         return { total_price: part.total_price };
     }
 
-    async remove(partId: number): Promise<void> {
+    async remove(partId: number | string): Promise<void> {
         const part = await this.shoppingCartModel.findOne({ where: { partId } });
 
         await part.destroy()
     }
 
-    async removeAll(userId: number): Promise<void> {
+    async removeAll(userId: number | string): Promise<void> {
         await this.shoppingCartModel.destroy({ where: { userId } });
     }
 

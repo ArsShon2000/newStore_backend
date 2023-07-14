@@ -3,7 +3,7 @@ import { Column, Table, Model } from "sequelize-typescript";
 @Table
 export class ShoppingCart extends Model {
     @Column
-    userId: string;
+    userId: number;
 
     @Column({ defaultValue: 0 })
     partId: number;
