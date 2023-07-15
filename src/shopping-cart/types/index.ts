@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 
-class ShoppingCartItem  {
-    @ApiProperty ({ example: 1 })
+class ShoppingCartItem {
+    @ApiProperty({ example: 1 })
     id: number;
 
     @ApiProperty({ example: 'Aliquid alias.' })
@@ -16,7 +16,7 @@ class ShoppingCartItem  {
 
     @ApiProperty({ example: 5 })
     in_stock: number;
-    
+
     @ApiProperty({ example: 'Salmon' })
     parts_manufacturer: string;
 
@@ -40,4 +40,24 @@ class ShoppingCartItem  {
 
     @ApiProperty({ example: '2023-07-14T05:07:59.000Z' })
     updatedAt: string;
+}
+
+export class GetAllResponse extends ShoppingCartItem { }
+export class AddToCartResponse extends ShoppingCartItem { }
+export class UpdateCountResponse {
+    @ApiProperty({ example: 1 })
+    count: number;
+}
+export class UpdateCountRequest {
+    @ApiProperty({ example: 1 })
+    count: number;
+}
+
+export class TotalPriceResponse {
+    @ApiProperty({ example: 1000 })
+    count: number;
+}
+export class TotalPriceRequest {
+    @ApiProperty({ example: 1000 })
+    count: number;
 }
