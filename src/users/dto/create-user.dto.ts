@@ -6,7 +6,7 @@ export class CreateUserDto {
     @IsNotEmpty()
     readonly username: string;
 
-    @ApiProperty({example: 'Ars132'})
+    @ApiProperty({example: 'Ars123'})
     @IsNotEmpty()
     readonly password: string;
 
