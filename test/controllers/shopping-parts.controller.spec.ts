@@ -22,7 +22,7 @@ const mockedUser = {
     password: 'jhon132'
 };
 
-describe('Boiler Parts Controller', () => {
+describe('Shopping Cart Controller', () => {
     let app: INestApplication;
     let boilerPartsService: BoilerPartsService;
     let usersService: UsersService;
@@ -96,7 +96,7 @@ describe('Boiler Parts Controller', () => {
         await ShoppingCart.destroy({ where: { partId: 1 } });
     });
 
-    it('should get all cart items', async () => {
+    it('should add cart items', async () => {
         const login = await request(app.getHttpServer())
             .post('/users/login')
             .send({ username: mockedUser.username, password: mockedUser.password });
@@ -120,7 +120,7 @@ describe('Boiler Parts Controller', () => {
                     price: expect.any(Number),
                     parts_manufacturer: expect.any(String),
                     name: expect.any(String),
-                    images: expect.any(String),
+                    image: expect.any(String),
                     count: expect.any(Number),
                     total_price: expect.any(Number),
                     in_stock: expect.any(Number),
@@ -131,38 +131,110 @@ describe('Boiler Parts Controller', () => {
         );
     });
 
-    it('should add cart items', async () => {
+    it('should get all cart items', async () => {
         const login = await request(app.getHttpServer())
             .post('/users/login')
             .send({ username: mockedUser.username, password: mockedUser.password });
 
-        const response = await request(app.getHttpServer())
+        await request(app.getHttpServer())
             .post(`/shopping-cart/add`)
             .send({ username: mockedUser.username, partId: 3 })
             .set('Cookie', login.headers['set-cookie']);
 
         const user = await usersService.findOne({
-            where: { username: mockedUser.username }
+            where: { username: mockedUser.username },
         });
 
-        expect(response.body).toEqual(
-            expect.arrayContaining([
+        const response = await request(app.getHttpServer())
+            .get(`/shopping-cart/${user.id}`)
+            .set('Cookie', login.headers['set-cookie']);
+
+        expect(response.body.find((item) => item.partId === 3)).toEqual(
+            expect.objectContaining(
                 {
                     id: expect.any(Number),
                     userId: user.id,
-                    partId: expect.any(Number),
+                    partId: 3,
                     boiler_manufacturer: expect.any(String),
                     price: expect.any(Number),
                     parts_manufacturer: expect.any(String),
                     name: expect.any(String),
-                    images: expect.any(String),
+                    image: expect.any(String),
                     count: expect.any(Number),
                     total_price: expect.any(Number),
                     in_stock: expect.any(Number),
                     createdAt: expect.any(String),
                     updatedAt: expect.any(String),
-                }
-            ]),
+                },
+            ),
         );
+    });
+
+    it('should get updated count of cart item', async () => {
+        const login = await request(app.getHttpServer())
+            .post('/users/login')
+            .send({ username: mockedUser.username, password: mockedUser.password });
+
+        const response = await request(app.getHttpServer())
+            .patch(`/shopping-cart/count/1`)
+            .send({ count: 2 })
+            .set('Cookie', login.headers['set-cookie']);
+
+        expect(response.body).toEqual({ count: 2 });
+    });
+
+    it('should get updated total price of cart item', async () => {
+        const login = await request(app.getHttpServer())
+            .post('/users/login')
+            .send({ username: mockedUser.username, password: mockedUser.password });
+
+        const part = await boilerPartsService.findOne(1)
+
+        const response = await request(app.getHttpServer())
+            .patch(`/shopping-cart/total-price/1`)
+            .send({ total_price: part.price * 3 })
+            .set('Cookie', login.headers['set-cookie']);
+
+        expect(response.body).toEqual({ total_price: part.price * 3 });
+    });
+
+    it('should delete cart item', async () => {
+        const login = await request(app.getHttpServer())
+            .post('/users/login')
+            .send({ username: mockedUser.username, password: mockedUser.password });
+
+        await request(app.getHttpServer())
+            .delete(`/shopping-cart/one/1`)
+            .set('Cookie', login.headers['set-cookie']);
+
+        const user = await usersService.findOne({
+            where: { username: mockedUser.username },
+        });
+
+        const response = await request(app.getHttpServer())
+            .get(`/shopping-cart/${user.id}`)
+            .set('Cookie', login.headers['set-cookie']);
+
+        expect(response.body.find((item) => item.partId === 1)).toBeUndefined();
+    });
+
+    it('should delete all cart item', async () => {
+        const login = await request(app.getHttpServer())
+            .post('/users/login')
+            .send({ username: mockedUser.username, password: mockedUser.password });
+
+        const user = await usersService.findOne({
+            where: { username: mockedUser.username },
+        });
+
+        await request(app.getHttpServer())
+            .delete(`/shopping-cart/all/${user.id}`)
+            .set('Cookie', login.headers['set-cookie']);
+
+        const response = await request(app.getHttpServer())
+            .get(`/shopping-cart/${user.id}`)
+            .set('Cookie', login.headers['set-cookie']);
+
+        expect(response.body).toStrictEqual([]);
     });
 });
