@@ -85,7 +85,7 @@ describe('Shopping Cart Service', () => {
 
     afterEach(async () => {
         await User.destroy({ where: { username: mockedUser.username } });
-        await ShoppingCart.destroy({ where: { partId: 1 } });
+        await ShoppingCart.destroy({ where: { partId: 3 } });
     });
 
     it('should return all cart items', async () => {
